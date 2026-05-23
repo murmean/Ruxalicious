@@ -38,15 +38,15 @@ function isSlotTaken(date, time) {
 const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-        user: "EMAILUL_TAU@gmail.com",
-        pass: "APP_PASSWORD"
+        user: "ratiumarianalexandru@gmail.com",
+        pass: "Futinlol321@"
     }
 });
 
 function sendEmail(booking) {
     transporter.sendMail({
-        from: "Salon Unghii <EMAILUL_TAU@gmail.com>",
-        to: "EMAILUL_TAU@gmail.com",
+        from: "Salon Unghii <ratiumarianalexandr@gmail.com>",
+        to: "ratiumarianalexandru@gmail.com",
         subject: "Programare nouă 💅",
         text: `
 Nume: ${booking.name}
