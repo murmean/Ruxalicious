@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programări Online</title>
+
+    <style>
+        body{
+            font-family: Arial, sans-serif;
+            background:#f4f4f4;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            min-height:100vh;
+        }
+
+        .container{
+            background:white;
+            padding:30px;
+            border-radius:10px;
+            width:400px;
+            box-shadow:0 0 15px rgba(0,0,0,0.1);
+        }
+
+        h2{
+            text-align:center;
+            margin-bottom:20px;
+        }
+
+        input, textarea{
+            width:100%;
+            padding:10px;
+            margin-bottom:12px;
+            border:1px solid #ccc;
+            border-radius:5px;
+        }
+
+        button{
+            width:100%;
+            padding:12px;
+            background:#007bff;
+            color:white;
+            border:none;
+            border-radius:5px;
+            cursor:pointer;
+        }
+
+        button:hover{
+            opacity:0.9;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Programare</h2>
+
+    <form action="https://formsubmit.co/ratiumarianalexandru@gmail.com" method="POST">
+
+        <input type="text" name="Nume" placeholder="Nume complet" required>
+
+        <input type="tel" name="Telefon" placeholder="Telefon" required>
+
+        <input type="email" name="Email" placeholder="Email" required>
+
+        <input type="date" name="Data Programării" required>
+
+        <textarea name="Mesaj" rows="4" placeholder="Detalii programare"></textarea>
+
+        <!-- Dezactivează captcha -->
+        <input type="hidden" name="_captcha" value="false">
+
+        <!-- Pagina după trimitere -->
+        <input type="hidden" name="_next" value="https://siteultau.ro/multumim.html">
+
+        <button type="submit">Trimite Programarea</button>
+
+    </form>
+</div>
+
+</body>
+</html>
