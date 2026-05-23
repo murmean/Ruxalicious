@@ -9,23 +9,32 @@ app.use(express.json());
 
 const FILE = "appointments.json";
 
+// creează fișierul dacă nu există
 if (!fs.existsSync(FILE)) {
     fs.writeFileSync(FILE, "[]");
 }
 
+// citire programări
 function getAppointments() {
-    return JSON.parse(fs.readFileSync(FILE));
+    try {
+        return JSON.parse(fs.readFileSync(FILE, "utf8"));
+    } catch (e) {
+        return [];
+    }
 }
 
+// salvare programări
 function saveAppointments(data) {
     fs.writeFileSync(FILE, JSON.stringify(data, null, 2));
 }
 
+// verificare ore
 function isSlotTaken(date, time) {
     const data = getAppointments();
     return data.some(a => a.date === date && a.time === time);
 }
 
+// email
 const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -36,7 +45,7 @@ const transporter = nodemailer.createTransport({
 
 function sendEmail(booking) {
     transporter.sendMail({
-        from: "Salon Unghii",
+        from: "Salon Unghii <EMAILUL_TAU@gmail.com>",
         to: "EMAILUL_TAU@gmail.com",
         subject: "Programare nouă 💅",
         text: `
@@ -48,14 +57,19 @@ Ora: ${booking.time}
     });
 }
 
+// BOOKING API
 app.post("/book", (req, res) => {
     const { name, phone, date, time } = req.body;
+
+    if (!name || !phone || !date || !time) {
+        return res.status(400).json({ message: "Completează toate câmpurile" });
+    }
 
     if (isSlotTaken(date, time)) {
         return res.status(400).json({ message: "Ora este ocupată" });
     }
 
-    const data = getAppointments();
+    const appointments = getAppointments();
 
     const booking = {
         id: Date.now(),
@@ -65,21 +79,21 @@ app.post("/book", (req, res) => {
         time
     };
 
-    data.push(booking);
-    saveAppointments(data);
+    appointments.push(booking);
+    saveAppointments(appointments);
 
     sendEmail(booking);
 
     res.json({ message: "Programare făcută 💅" });
 });
 
-function getAppointments() {
-    try {
-        return JSON.parse(fs.readFileSync(FILE, "utf8"));
-    } catch (e) {
-        return [];
-    }
-}
+// listă programări (test)
+app.get("/appointments", (req, res) => {
+    res.json(getAppointments());
+});
 
+// START SERVER (IMPORTANT PENTRU RENDER)
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("Server pornit"));
+app.listen(PORT, () => {
+    console.log("Server pornit pe port " + PORT);
+});
