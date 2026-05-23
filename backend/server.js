@@ -73,9 +73,13 @@ app.post("/book", (req, res) => {
     res.json({ message: "Programare făcută 💅" });
 });
 
-app.get("/appointments", (req, res) => {
-    res.json(getAppointments());
-});
+function getAppointments() {
+    try {
+        return JSON.parse(fs.readFileSync(FILE, "utf8"));
+    } catch (e) {
+        return [];
+    }
+}
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log("Server pornit"));
