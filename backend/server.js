@@ -7,34 +7,47 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// LOG request general
+app.use((req, res, next) => {
+    console.log(`➡️ ${req.method} ${req.url}`);
+    console.log("Body:", req.body);
+    next();
+});
+
 const FILE = "appointments.json";
 
-// creează fișierul dacă nu există
 if (!fs.existsSync(FILE)) {
     fs.writeFileSync(FILE, "[]");
+    console.log("📁 appointments.json creat");
 }
 
-// citire programări
 function getAppointments() {
     try {
-        return JSON.parse(fs.readFileSync(FILE, "utf8"));
+        const data = fs.readFileSync(FILE, "utf8");
+        console.log("📥 Citire appointments:", data);
+        return JSON.parse(data);
     } catch (e) {
+        console.log("❌ Eroare citire file:", e);
         return [];
     }
 }
 
-// salvare programări
 function saveAppointments(data) {
-    fs.writeFileSync(FILE, JSON.stringify(data, null, 2));
+    try {
+        fs.writeFileSync(FILE, JSON.stringify(data, null, 2));
+        console.log("💾 Salvate appointments:", data);
+    } catch (e) {
+        console.log("❌ Eroare salvare file:", e);
+    }
 }
 
-// verificare ore
 function isSlotTaken(date, time) {
     const data = getAppointments();
-    return data.some(a => a.date === date && a.time === time);
+    const taken = data.some(a => a.date === date && a.time === time);
+    console.log(`⏰ Slot check ${date} ${time} =>`, taken);
+    return taken;
 }
 
-// email
 const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -43,7 +56,18 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+// test conexiune mail
+transporter.verify((err, success) => {
+    if (err) {
+        console.log("❌ Mailer error:", err);
+    } else {
+        console.log("📧 Mailer ready");
+    }
+});
+
 function sendEmail(booking) {
+    console.log("📨 Trimit email pentru:", booking);
+
     transporter.sendMail({
         from: "Salon Unghii <ratiumarianalexandr@gmail.com>",
         to: "ratiumarianalexandru@gmail.com",
@@ -54,18 +78,29 @@ Telefon: ${booking.phone}
 Data: ${booking.date}
 Ora: ${booking.time}
 `
+    }, (err, info) => {
+        if (err) {
+            console.log("❌ Email fail:", err);
+        } else {
+            console.log("✅ Email trimis:", info.response);
+        }
     });
 }
 
-// BOOKING API
 app.post("/book", (req, res) => {
+    console.log("🔥 REQUEST /book primit");
+
     const { name, phone, date, time } = req.body;
 
+    console.log("📦 Date extrase:", { name, phone, date, time });
+
     if (!name || !phone || !date || !time) {
+        console.log("⚠️ Câmpuri lipsă");
         return res.status(400).json({ message: "Completează toate câmpurile" });
     }
 
     if (isSlotTaken(date, time)) {
+        console.log("⛔ Slot ocupat");
         return res.status(400).json({ message: "Ora este ocupată" });
     }
 
@@ -84,16 +119,17 @@ app.post("/book", (req, res) => {
 
     sendEmail(booking);
 
+    console.log("✅ Booking finalizat");
+
     res.json({ message: "Programare făcută 💅" });
 });
 
-// listă programări (test)
 app.get("/appointments", (req, res) => {
+    console.log("📋 GET /appointments");
     res.json(getAppointments());
 });
 
-// START SERVER (IMPORTANT PENTRU RENDER)
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log("Server pornit pe port " + PORT);
+    console.log("🚀 Server pornit pe port " + PORT);
 });
